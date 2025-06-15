@@ -1,5 +1,5 @@
+import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
-import { useEffect, useState, useCallback } from "react";
 
 interface UseAppwriteOptions<T, P extends Record<string, string | number>> {
   fn: (params: P) => Promise<T>;
@@ -13,9 +13,9 @@ interface UseAppwriteReturn<T, P> {
   error: string | null;
   refetch: (newParams: P) => Promise<void>;
 }
-
+//custom React hook for managing AppWrite API calls with state handling
 export const useAppwrite = <T, P extends Record<string, string | number>>({
-  fn,
+  fn, //fetch data
   params = {} as P,
   skip = false,
 }: UseAppwriteOptions<T, P>): UseAppwriteReturn<T, P> => {
