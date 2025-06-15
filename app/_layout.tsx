@@ -27,7 +27,7 @@ export default function Layout() {
   }
   return (
     <GlobalProvider>
-      <Stack screenOptions={{ headerShown: false }} />;
+      <Stack screenOptions={{ headerShown: false }} />
     </GlobalProvider>
   );
 }

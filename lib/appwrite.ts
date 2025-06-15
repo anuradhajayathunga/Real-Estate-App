@@ -60,8 +60,8 @@ export async function login() {
 
 export async function logout() {
   try {
-    await account.deleteSession("current");
-    return true;
+    const result = await account.deleteSession("current");
+    return result;
   } catch (error) {
     console.error(error);
     return false;
@@ -70,17 +70,19 @@ export async function logout() {
 
 export async function getCurrentUser() {
   try {
-    const response = await account.get();
+    const result = await account.get();
+    if (result.$id) {
+      const userAvatar = avatar.getInitials(result.name);
 
-    if (response.$id) {
-      const userAvatar = avatar.getInitials(response.name);
       return {
-        ...response,
+        ...result,
         avatar: userAvatar.toString(),
       };
     }
+
+    return null;
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return null;
   }
 }
