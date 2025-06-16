@@ -102,12 +102,14 @@ export async function getLatestProperties() {
       config.propertiesCollectionId!,
       [Query.orderAsc("$createdAt"), Query.limit(5)]
     );
+
     return result.documents;
   } catch (error) {
-    console.error("Error fetching latest properties:", error);
+    console.error(error);
     return [];
   }
 }
+
 export async function getProperties({
   filter,
   query,
@@ -120,25 +122,58 @@ export async function getProperties({
   try {
     const buildQuery = [Query.orderDesc("$createdAt")];
 
-    if (filter && filter !== "All") {
+    // Add filter condition
+    if (filter && filter !== "All" && filter.trim() !== "") {
       buildQuery.push(Query.equal("type", filter));
     }
-    if (query) {
-      buildQuery.push(Query.search("name", query));
-      buildQuery.push(Query.search("address", query));
-      buildQuery.push(Query.search("type", query));
+
+    // Add search condition - only if query exists and is not empty
+    if (query && query.trim() !== "") {
+      buildQuery.push(
+        Query.or([
+          Query.search("name", query.trim()),
+          Query.search("address", query.trim()),
+          Query.search("type", query.trim()),
+        ])
+      );
     }
-    if (limit) {
+
+    // Add limit condition
+    if (limit && limit > 0) {
       buildQuery.push(Query.limit(limit));
     }
+
+    console.log("Search query:", query); // Debug log
+    console.log("Filter:", filter); // Debug log
+    console.log("Build query:", buildQuery); // Debug log
+
     const result = await databases.listDocuments(
       config.databaseId!,
       config.propertiesCollectionId!,
-      buildQuery,
+      buildQuery
     );
+
+    console.log("Search results count:", result.documents.length); // Debug log
+
     return result.documents;
   } catch (error) {
-    console.error("Error fetching properties:", error);
+    console.error("Error in getProperties:", error);
     return [];
   }
 }
+
+// write function to get property by id
+export async function getPropertyById({ id }: { id: string }) {
+  try {
+    const result = await databases.getDocument(
+      config.databaseId!,
+      config.propertiesCollectionId!,
+      id
+    );
+    return result;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+

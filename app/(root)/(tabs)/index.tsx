@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const { user } = useGlobalContext();
+
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
   const { data: latestProperties, loading: latestPropertiesLoading } =
@@ -34,6 +35,7 @@ export default function Index() {
     },
     skip: true,
   });
+
   useEffect(() => {
     refetch({
       filter: params.filter!,
@@ -43,24 +45,22 @@ export default function Index() {
   }, [params.filter, params.query]);
 
   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
+
   return (
     <SafeAreaView className="h-full bg-white">
       {/* <Button title="Seed" onPress={seed} /> */}
-      {/* FlatList is used to render a list of items, such as cards or featured items. like a scrollable list virtical or horizontal */}
-      {/* The ListHeaderComponent prop allows you to render a header at the top of the list. */}
       <FlatList
-        data={properties} //properties
+        data={properties} // properties
         renderItem={({ item }) => (
           <Card item={item} onPress={() => handleCardPress(item.$id)} />
-        )} // Replace with your card component <Card/>
-        keyExtractor={(item) => item.$id} // Unique key for each item
-        numColumns={2} // Display items in two columns
+        )}
+        keyExtractor={(item) => item.$id}
+        numColumns={2}
         contentContainerClassName="pb-32"
         columnWrapperClassName="flex gap-5 px-5"
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           loading ? (
-            // <ActivityIndicator size="large" className="mt-5 text-primary-300"/>
             <View className="flex items-center my-5">
               <Text className="mt-5 text-2xl font-rubik-bold text-primary-300">
                 Loading...
@@ -127,6 +127,7 @@ export default function Index() {
                 />
               )}
             </View>
+
             <View className="my-5 ">
               <View className="flex flex-row items-center justify-between">
                 <Text className="text-xl font-rubik-bold text-primary-300">
