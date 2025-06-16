@@ -27,13 +27,13 @@ const propertyTypes = [
 
 const facilities = [
   "Laundry",
-  "Car Parking",
-  "Sports Center",
+  "CarParking",
+  "Sports-Center",
   "Cutlery",
   "Gym",
-  "Swimming pool",
+  "Swimming-pool",
   "Wifi",
-  "Pet Center",
+  "Pet-Center",
 ];
 
 function getRandomSubset<T>(
