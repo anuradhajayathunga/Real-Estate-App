@@ -11,10 +11,10 @@ const NoResults = () => {
         className="w-11/12 h-80"
         resizeMode="contain"
       />
-      <Text className="text-2xl font-rubik-bold text-black-300 mt-5">
+      <Text className="mt-5 text-2xl font-rubik-bold text-primary-300">
         No Result
       </Text>
-      <Text className="text-base text-black-100 mt-2">
+      <Text className="mt-2 text-base text-black-100">
         We could not find any result
       </Text>
     </View>

@@ -1,24 +1,75 @@
+import { Card, FeaturedCard } from "@/components/Cards";
 import Filters from "@/components/Filters";
+import NoResults from "@/components/NoResults";
 import Search from "@/components/Search";
 import icons from "@/constants/icons";
+import { getLatestProperties, getProperties } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
+import { useAppwrite } from "@/lib/useAppwrite";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
+// import seed from "@/lib/seed";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
-  const { user, refetch } = useGlobalContext();
+  const { user } = useGlobalContext();
+  const params = useLocalSearchParams<{ query?: string; filter?: string }>();
+
+  const { data: latestProperties, loading: latestPropertiesLoading } =
+    useAppwrite({
+      fn: getLatestProperties,
+    });
+
+  const {
+    data: properties,
+    refetch,
+    loading,
+  } = useAppwrite({
+    fn: getProperties,
+    params: {
+      filter: params.filter!,
+      query: params.query!,
+      limit: 6,
+    },
+    skip: true,
+  });
+  useEffect(() => {
+    refetch({
+      filter: params.filter!,
+      query: params.query!,
+      limit: 6,
+    });
+  }, [params.filter, params.query]);
+
+  const handleCardPress = (id: string) => router.push(`/properties/${id}`);
   return (
     <SafeAreaView className="h-full bg-white">
-      {/* // FlatList is used to render a list of items, such as cards or featured items. like a scrollable list virtical or horizontal */}
+      {/* <Button title="Seed" onPress={seed} /> */}
+      {/* FlatList is used to render a list of items, such as cards or featured items. like a scrollable list virtical or horizontal */}
       {/* The ListHeaderComponent prop allows you to render a header at the top of the list. */}
       <FlatList
-        data={[1, 2, 3, 4]}
-        renderItem={({ item }) => <Text className="pr-20">Hii</Text>} // Replace with your card component <Card/>
-        keyExtractor={(item) => item.toString()} // Unique key for each item
+        data={properties} //properties
+        renderItem={({ item }) => (
+          <Card item={item} onPress={() => handleCardPress(item.$id)} />
+        )} // Replace with your card component <Card/>
+        keyExtractor={(item) => item.$id} // Unique key for each item
         numColumns={2} // Display items in two columns
         contentContainerClassName="pb-32"
         columnWrapperClassName="flex gap-5 px-5"
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          loading ? (
+            // <ActivityIndicator size="large" className="mt-5 text-primary-300"/>
+            <View className="flex items-center my-5">
+              <Text className="mt-5 text-2xl font-rubik-bold text-primary-300">
+                Loading...
+              </Text>
+            </View>
+          ) : (
+            <NoResults />
+          )
+        }
         ListHeaderComponent={
           <View className="px-5">
             <View className="flex flex-row items-center justify-between mt-5">
@@ -50,21 +101,31 @@ export default function Index() {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View className="flex flex-row gap-5 mt-3">
-                {/* Here you would map through your featured cards */}
-                <Text className="text-base font-rubik-semibold text-black-300">
-                  Featured Cards
-                </Text>
-              </View>
-              <FlatList
-                data={[1, 2, 3]}
-                renderItem={({ item }) => <Text>Guys..!</Text>}
-                keyExtractor={(item) => item.toString()}
-                horizontal
-                bounces={false}
-                showsHorizontalScrollIndicator={false}
-                contentContainerClassName="flex gap-5 mt-3"
-              />
+
+              {latestPropertiesLoading ? (
+                <View className="flex items-center my-5">
+                  <Text className="mt-5 text-2xl font-rubik-bold text-primary-300">
+                    Loading...
+                  </Text>
+                </View>
+              ) : !latestProperties || latestProperties.length === 0 ? (
+                <NoResults />
+              ) : (
+                <FlatList
+                  data={latestProperties} // latestProperties
+                  renderItem={({ item }) => (
+                    <FeaturedCard
+                      item={item}
+                      onPress={() => handleCardPress(item.$id)}
+                    />
+                  )}
+                  keyExtractor={(item) => item.$id}
+                  horizontal
+                  bounces={false}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerClassName="flex gap-5 mt-3"
+                />
+              )}
             </View>
             <View className="my-5 ">
               <View className="flex flex-row items-center justify-between">
@@ -78,12 +139,6 @@ export default function Index() {
                 </TouchableOpacity>
               </View>
               <Filters />
-              <View className="flex flex-row gap-5 mt-3">
-                {/*  Here you would map through your recommendation cards */}
-                <Text className="text-base font-rubik-semibold text-black-300">
-                  Recommendation Cards
-                </Text>
-              </View>
             </View>
           </View>
         }
